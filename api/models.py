@@ -31,7 +31,7 @@ class Version(models.Model):
         on_delete=models.CASCADE,
         related_name='versions',
     )
-    name = models.CharField('версия справочника')
+    name = models.CharField('версия справочника', max_length=100)
     start_date = models.DateField('дата начала действия')
 
     class Meta:
