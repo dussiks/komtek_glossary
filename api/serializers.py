@@ -1,4 +1,5 @@
 from api.models import Element, Guide, Version
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 
@@ -17,7 +18,12 @@ class Version(ModelSerializer):
 
 
 class ElementSerializer(ModelSerializer):
+    version_id = serializers.SlugRelatedField(
+        slug_field='version.id',
+        many=False,
+        read_only=True
+    )
 
     class Meta:
         model = Element
-        fields = ('code', 'value')
+        fields = ('id', 'version_id', 'code', 'value')
