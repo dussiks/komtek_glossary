@@ -74,7 +74,7 @@ class Version(models.Model):
 
 
 class Element(models.Model):
-    versions = models.ManyToManyField(
+    version = models.ManyToManyField(
         Version,
         related_name='elements',
         verbose_name='версии'

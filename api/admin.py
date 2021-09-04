@@ -49,7 +49,7 @@ class VersionAdmin(admin.ModelAdmin):
 
 class ElementAdmin(admin.ModelAdmin):
     list_display = ('code', 'value')
-    filter_horizontal = ('versions',)
+    filter_horizontal = ('version',)
     list_filter = ('code', )
     empty_value_display = '-пусто-'
 

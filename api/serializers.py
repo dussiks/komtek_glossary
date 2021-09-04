@@ -6,6 +6,17 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 
+class SearchDateSerializer(serializers.Serializer):
+    search_date = serializers.DateField()
+
+
+class VersionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Version
+        fields = ('id', 'name', 'start_date')
+
+
 class GuideSerializer(ModelSerializer):
     title = serializers.CharField(source='guide.title')
     id = serializers.IntegerField(source='guide.id')
@@ -20,16 +31,18 @@ class GuideSerializer(ModelSerializer):
 
 
 class ElementSerializer(ModelSerializer):
-    version_id = serializers.SlugRelatedField(
-        slug_field='version.id',
-        many=False,
-        read_only=True
-    )
 
     class Meta:
         model = Element
-        fields = ('id', 'version_id', 'code', 'value')
+        fields = ('id', 'code', 'value')
 
 
-class VersionDateSerializer(serializers.Serializer):
-    search_date = serializers.DateField()
+class GuideVersionSerializer(serializers.ModelSerializer):
+    guide = serializers.CharField(source='guide.short_title')
+    guide_id = serializers.IntegerField(source='guide.id')
+    version = serializers.CharField(source='name')
+    elements = ElementSerializer(many=True)
+
+    class Meta:
+        model = Version
+        fields = ('guide', 'guide_id', 'version', 'elements')
