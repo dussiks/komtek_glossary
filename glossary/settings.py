@@ -82,6 +82,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+DATE_INPUT_FORMATS = '%m.%d.%Y'
+
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {

@@ -1,4 +1,4 @@
-from datetime import date
+import datetime as dt
 from typing import Optional
 
 from django.contrib import admin
@@ -23,16 +23,16 @@ class GuideAdmin(admin.ModelAdmin):
     inlines = (VersionInline,)
     actions = ['show_actual_version_name', 'show_actual_version_date']
 
-    def show_actual_version_date(self, obj: Guide) -> Optional[date]:
+    def show_actual_version_date(self, obj: Guide) -> Optional[dt.date]:
         try:
-            version_date = obj.show_actual_version.start_date
+            version_date = obj.show_actual_version().start_date
             return version_date
         except AttributeError:
             return
 
     def show_actual_version_name(self, obj: Guide) -> Optional[str]:
         try:
-            version_name = obj.show_actual_version.name
+            version_name = obj.show_actual_version().name
             return version_name
         except AttributeError:
             return

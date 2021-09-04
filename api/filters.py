@@ -6,11 +6,7 @@ from api.models import Element, Guide, Version
 
 
 class GuideFilter(filters.FilterSet):
-    tags = filters.CharFilter(method='filter_tags')
-    is_favorited = filters.BooleanFilter(method='filter_is_favorited')
-    is_in_shopping_cart = filters.BooleanFilter(
-        method='filter_is_in_shopping_cart'
-    )
+    versions = filters.CharFilter(method='filter_versions')
 
     class Meta:
         model = Guide
