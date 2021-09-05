@@ -50,7 +50,11 @@ class Version(models.Model):
         related_name='versions',
     )
     name = models.CharField('версия справочника', max_length=100)
-    start_date = models.DateField('дата начала действия')
+    start_date = models.DateField(
+        'дата начала действия',
+        null=False,
+        blank=False
+    )
 
     class Meta:
         verbose_name = 'версия'
@@ -74,7 +78,7 @@ class Element(models.Model):
         verbose_name='версии'
     )
     code = models.CharField('код', max_length=50, unique=True, db_index=True)
-    value = models.CharField('значение', max_length=200)
+    value = models.CharField('значение', max_length=100)
 
     class Meta:
         verbose_name = 'элемент'
