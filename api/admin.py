@@ -25,14 +25,14 @@ class GuideAdmin(admin.ModelAdmin):
 
     def show_actual_version_date(self, obj: Guide) -> Optional[dt.date]:
         try:
-            version_date = obj.show_actual_version().start_date
+            version_date = obj.show_actual_version.start_date
             return version_date
         except AttributeError:
             return
 
     def show_actual_version_name(self, obj: Guide) -> Optional[str]:
         try:
-            version_name = obj.show_actual_version().name
+            version_name = obj.show_actual_version.name
             return version_name
         except AttributeError:
             return

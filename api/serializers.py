@@ -1,6 +1,3 @@
-import datetime as dt
-from typing import Optional
-
 from api.models import Element, Guide, Version
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer

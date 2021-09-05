@@ -27,16 +27,10 @@ class Guide(models.Model):
     def __str__(self):
         return self.title
 
-    def show_actual_version(self, current_date: dt.date = None):
-        """
-        Returns guide's version object actual for the given date.
-        If date is not given - for the date when function is called.
-        """
+    @cached_property
+    def show_actual_version(self):
+        """Returns guide's version actual at date when called."""
         actual_date = dt.date.today()
-
-        if current_date is not None:
-            if isinstance(current_date, dt.date):
-                actual_date = current_date
 
         try:
             actual_version = self.versions.filter(
