@@ -1,6 +1,7 @@
-from api.models import Element, Version
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
+
+from api.models import Element, Version
 
 
 class SearchDateSerializer(serializers.Serializer):
