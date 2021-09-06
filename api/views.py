@@ -20,6 +20,7 @@ class ListRetrieveViewSet(mixins.ListModelMixin,
 
     def _get_actual_date(self, **kwargs) -> dt.date:
         """Returns date from request params if given or today date if not."""
+
         input_date = self.request.query_params.get('search_date')
         current_date = dt.date.today()
 
@@ -42,6 +43,7 @@ class ListRetrieveViewSet(mixins.ListModelMixin,
         :param version: guide's version.
         :return: Response object with validation result
         """
+
         code = request.query_params.get('code')
         value = request.query_params.get('value')
 
@@ -71,6 +73,7 @@ class GuideViewSet(ListRetrieveViewSet):
         If 'search_date' parameter is given in request - returns guides
         with versions actual to given date.
         """
+
         actual_date = self._get_actual_date(**kwargs)
         queryset = self.get_queryset()
         all_actual_versions = queryset.filter(start_date__lte=actual_date)
@@ -96,6 +99,7 @@ class GuideViewSet(ListRetrieveViewSet):
         Returns guide having id pointed in request with actual version
         and list of referred elements.
         """
+
         guide = get_object_or_none(Guide, pk=kwargs.get('pk'))
         if not guide:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -118,6 +122,7 @@ class GuideViewSet(ListRetrieveViewSet):
             url_name='validate_element')
     def validate_elements_in_actual_version(self, request, *args, **kwargs):
         """Validates element in guide with actual version"""
+
         guide = get_object_or_none(Guide, pk=kwargs.get('pk'))
         if not guide:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -145,6 +150,7 @@ class VersionViewSet(ListRetrieveViewSet):
 
     def list(self, request, *args, **kwargs):
         """Returns queryset of all versions for pointed guide."""
+
         guide_versions = self.get_queryset()
         if not guide_versions:  # no versions means no requested guide
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -159,6 +165,7 @@ class VersionViewSet(ListRetrieveViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         """Returns guide elements of pointed version."""
+
         guide_versions = self.get_queryset()
         if not guide_versions:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -185,6 +192,7 @@ class VersionViewSet(ListRetrieveViewSet):
             url_name='validate_element')
     def validate_elements_in_pointed_version(self, request, *args, **kwargs):
         """Validates element in guide with pointed version"""
+
         guide_versions = self.get_queryset()
         if not guide_versions:
             return Response(status=status.HTTP_400_BAD_REQUEST)
