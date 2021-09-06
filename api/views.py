@@ -2,22 +2,23 @@ import datetime as dt
 
 from api.models import Element, Guide, Version
 from api.serializers import (ElementSerializer, GuideSerializer,
-                             GuideVersionSerializer, SearchDateSerializer,
-                             VersionSerializer)
+                             SearchDateSerializer, VersionSerializer)
 from django.db.models import OuterRef, Subquery
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import mixins, GenericViewSet
 
+from api.paginator import CustomPagination
 from api.utils import get_object_or_none
 
 
 class ListRetrieveViewSet(mixins.ListModelMixin,
                           mixins.RetrieveModelMixin,
                           GenericViewSet):
+    pagination_class = CustomPagination
 
-    def get_actual_date(self, **kwargs) -> dt.date:
+    def _get_actual_date(self, **kwargs) -> dt.date:
         """Returns date from request params if given or today date if not."""
         input_date = self.request.query_params.get('search_date')
         current_date = dt.date.today()
@@ -39,7 +40,7 @@ class ListRetrieveViewSet(mixins.ListModelMixin,
         Validates if element in guide's version.
         :param request: checks code and value parameters in request
         :param version: guide's version.
-        :return: Response with validation result
+        :return: Response object with validation result
         """
         code = request.query_params.get('code')
         value = request.query_params.get('value')
@@ -47,6 +48,8 @@ class ListRetrieveViewSet(mixins.ListModelMixin,
         if (not code) or (not value):
             error_text = 'No code/value in parameters.'
             return Response(error_text, status=status.HTTP_400_BAD_REQUEST)
+
+        code, value = code.lower(), value.lower()
 
         try:
             element = version.elements.get(code=code, value=value)
@@ -68,7 +71,7 @@ class GuideViewSet(ListRetrieveViewSet):
         If 'search_date' parameter is given in request - returns guides
         with versions actual to given date.
         """
-        actual_date = self.get_actual_date(**kwargs)
+        actual_date = self._get_actual_date(**kwargs)
         queryset = self.get_queryset()
         all_actual_versions = queryset.filter(start_date__lte=actual_date)
         sq = all_actual_versions.filter(
@@ -79,8 +82,13 @@ class GuideViewSet(ListRetrieveViewSet):
         guide_actual_versions = Version.objects.filter(
             pk=Subquery(sq.values('pk')[:1])
         )
-        serializer = self.get_serializer(guide_actual_versions, many=True)
 
+        page = self.paginate_queryset(guide_actual_versions)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(guide_actual_versions, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
@@ -96,8 +104,14 @@ class GuideViewSet(ListRetrieveViewSet):
         if not actual_version:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        serializer = GuideVersionSerializer(actual_version)
+        elements = actual_version.elements.all()
 
+        page = self.paginate_queryset(elements)
+        if page is not None:
+            serializer = ElementSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = ElementSerializer(elements, many=True)
         return Response(serializer.data)
 
     @action(methods=['GET'], detail=True, url_path=r'validate',
@@ -135,6 +149,11 @@ class VersionViewSet(ListRetrieveViewSet):
         if not guide_versions:  # no versions means no requested guide
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+        page = self.paginate_queryset(guide_versions)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
         serializer = self.get_serializer(guide_versions, many=True)
         return Response(serializer.data)
 
@@ -153,8 +172,13 @@ class VersionViewSet(ListRetrieveViewSet):
             return Response(error_text, status=status.HTTP_400_BAD_REQUEST)
 
         elements = actual_version.elements.all()
-        serializer = ElementSerializer(elements, many=True)
 
+        page = self.paginate_queryset(elements)
+        if page is not None:
+            serializer = ElementSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = ElementSerializer(elements, many=True)
         return Response(serializer.data)
 
     @action(methods=['GET'], detail=True, url_path=r'validate',

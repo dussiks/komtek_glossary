@@ -1,4 +1,4 @@
-from api.models import Element, Guide, Version
+from api.models import Element, Version
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
@@ -32,14 +32,3 @@ class ElementSerializer(ModelSerializer):
     class Meta:
         model = Element
         fields = ('id', 'code', 'value')
-
-
-class GuideVersionSerializer(serializers.ModelSerializer):
-    guide = serializers.CharField(source='guide.short_title')
-    guide_id = serializers.IntegerField(source='guide.id')
-    version = serializers.CharField(source='name')
-    elements = ElementSerializer(many=True)
-
-    class Meta:
-        model = Version
-        fields = ('guide', 'guide_id', 'version', 'elements')
