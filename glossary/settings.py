@@ -1,15 +1,21 @@
 import os
 
+import environ
+
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+env = environ.Env()
+environ.Env.read_env(env_file=os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = '(l2b)4=c&f8vw2pd%ydo8lgm(slu_1fug_v*=(00sb%(x=3*5x'
 
-DEBUG = True
+DEBUG = env('DEBUG', default=False)
 
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
-    'api',
+    'api.apps.ApiConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -17,7 +23,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -87,9 +92,5 @@ DATE_INPUT_FORMATS = '%m.%d.%Y'
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.SearchFilter',
-    ],
     'DEFAULT_PAGINATION_CLASS': 'api.paginator.CustomPagination',
 }
