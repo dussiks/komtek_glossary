@@ -1,15 +1,15 @@
 import datetime as dt
 
-from api.models import Element, Guide, Version
-from api.serializers import (ElementSerializer, GuideSerializer,
-                             SearchDateSerializer, VersionSerializer)
 from django.db.models import OuterRef, Subquery
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.viewsets import mixins, GenericViewSet
+from rest_framework.viewsets import GenericViewSet, mixins
 
+from api.models import Element, Guide, Version
 from api.paginator import CustomPagination
+from api.serializers import (ElementSerializer, GuideSerializer,
+                             SearchDateSerializer, VersionSerializer)
 from api.utils import get_object_or_none
 
 
@@ -19,7 +19,7 @@ class ListRetrieveViewSet(mixins.ListModelMixin,
     pagination_class = CustomPagination
 
     def _get_actual_date(self, **kwargs) -> dt.date:
-        """Returns date from request params if given or today date if not."""
+        """Returns date from request params if given or current date if not"""
         input_date = self.request.query_params.get('search_date')
         current_date = dt.date.today()
 
@@ -108,10 +108,18 @@ class GuideViewSet(ListRetrieveViewSet):
 
         page = self.paginate_queryset(elements)
         if page is not None:
-            serializer = ElementSerializer(page, many=True)
+            serializer = ElementSerializer(
+                page,
+                many=True,
+                context={'guide_id': guide.id}
+            )
             return self.get_paginated_response(serializer.data)
 
-        serializer = ElementSerializer(elements, many=True)
+        serializer = ElementSerializer(
+            elements,
+            many=True,
+            context={'guide_id': guide.id}
+        )
         return Response(serializer.data)
 
     @action(methods=['GET'], detail=True, url_path=r'validate',
@@ -175,10 +183,18 @@ class VersionViewSet(ListRetrieveViewSet):
 
         page = self.paginate_queryset(elements)
         if page is not None:
-            serializer = ElementSerializer(page, many=True)
+            serializer = ElementSerializer(
+                page,
+                many=True,
+                context={'guide_id': actual_version.guide_id}
+            )
             return self.get_paginated_response(serializer.data)
 
-        serializer = ElementSerializer(elements, many=True)
+        serializer = ElementSerializer(
+            elements,
+            many=True,
+            context={'guide_id': actual_version.guide_id}
+        )
         return Response(serializer.data)
 
     @action(methods=['GET'], detail=True, url_path=r'validate',

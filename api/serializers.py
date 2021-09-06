@@ -1,6 +1,7 @@
-from api.models import Element, Version
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
+
+from api.models import Element, Version
 
 
 class SearchDateSerializer(serializers.Serializer):
@@ -28,7 +29,12 @@ class GuideSerializer(ModelSerializer):
 
 
 class ElementSerializer(ModelSerializer):
+    guide_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Element
-        fields = ('id', 'code', 'value')
+        fields = ('id', 'code', 'value', 'guide_id')
+
+    def get_guide_id(self, obj):
+        guide_id = self.context.get('guide_id')
+        return guide_id
