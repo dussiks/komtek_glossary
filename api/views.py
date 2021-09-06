@@ -32,7 +32,7 @@ class ListRetrieveViewSet(mixins.ListModelMixin,
             search_date = serializer.validated_data.get('search_date', None)
 
             if search_date is not None:
-                current_date = search_date
+                current_date = min(search_date, current_date)
 
         return current_date
 
