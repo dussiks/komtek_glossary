@@ -18,7 +18,6 @@ class GuideAdmin(admin.ModelAdmin):
         'show_actual_version_name',
         'show_actual_version_date'
     )
-    prepopulated_fields = {'short_title': ('title',)}
     list_filter = ('title',)
     empty_value_display = '-пусто-'
     inlines = (VersionInline,)

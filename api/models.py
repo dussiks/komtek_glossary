@@ -6,11 +6,10 @@ from django.utils.functional import cached_property
 
 class Guide(models.Model):
     title = models.CharField('наименование', max_length=100, unique=True)
-    short_title = models.SlugField(
+    short_title = models.CharField(
         'короткое наименование',
         unique=True,
-        allow_unicode=True,
-        max_length=30
+        max_length=50
     )
     description = models.CharField(
         'описание',
@@ -77,7 +76,7 @@ class Element(models.Model):
         related_name='elements',
         verbose_name='версии'
     )
-    code = models.CharField('код', max_length=50, unique=True, db_index=True)
+    code = models.CharField('код', max_length=50, db_index=True)
     value = models.CharField('значение', max_length=100)
 
     class Meta:
@@ -87,7 +86,7 @@ class Element(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['code', 'value'],
-                name='unique_elements_code_value'
+                name='unique_code_value'
             )
         ]
 
