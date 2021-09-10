@@ -219,7 +219,7 @@ http://127.0.0.1:8000/api/v1/guides/1/versions/3/validate/?code=500103&value=н�
 ```
 В этом же справочнике версии id=2 данного элемента нет:
 ```bash
-http://127.0.0.1:8000/api/v1/guides/1/versions/2/validate/?code=500103&value=aspirin
+http://127.0.0.1:8000/api/v1/guides/1/versions/2/validate/?code=500103&value=нурофен
 ```
 
 ```json
