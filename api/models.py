@@ -1,27 +1,7 @@
 import datetime as dt
 
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
-
-
-class Element(models.Model):
-    code = models.CharField('код', max_length=50, db_index=True)
-    value = models.CharField('значение', max_length=100)
-
-    class Meta:
-        verbose_name = 'элемент'
-        verbose_name_plural = 'элементы'
-        ordering = ('code',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['code', 'value'],
-                name='unique_code_value'
-            )
-        ]
-
-    def __str__(self):
-        return self.code
 
 
 class Guide(models.Model):
@@ -67,17 +47,13 @@ class Version(models.Model):
         Guide,
         on_delete=models.CASCADE,
         related_name='versions',
+        verbose_name='справочник'
     )
     name = models.CharField('версия справочника', max_length=100)
     start_date = models.DateField(
         'дата начала действия',
         null=False,
         blank=False
-    )
-    elements = models.ManyToManyField(
-        Element,
-        through='ElementInVersion',
-        verbose_name='элемент в версии'
     )
 
     class Meta:
@@ -95,42 +71,30 @@ class Version(models.Model):
         return f'{self.guide.short_title} версия {self.name}'
 
 
-class ElementInVersion(models.Model):
+class Element(models.Model):
     version = models.ForeignKey(
         Version,
         on_delete=models.CASCADE,
-        related_name='version_elements',
+        related_name='elements',
         verbose_name='версия'
     )
-    element = models.ForeignKey(
-        Element,
-        on_delete=models.CASCADE,
-        verbose_name='элемент'
-    )
-
-    def validate_unique(self, exclude=None):
-        elems_with_code = Element.objects.filter(code=self.element.code)
-        elems_in_version = ElementInVersion.objects.filter(
-            version=self.version
-        ).exclude(
-            id=self.id
-        )
-
-        if elems_in_version.filter(element__in=elems_with_code).exists():
-            raise ValidationError(
-                'You already have element with such code in this version'
-            )
-
-        elems_with_value = Element.objects.filter(value=self.element.value)
-        if elems_in_version.filter(element__in=elems_with_value).exists():
-            raise ValidationError(
-                'You already have element with such value in this version'
-            )
-
-    def save(self, *args, **kwargs):
-        self.validate_unique()
-        super().save(self, *args, **kwargs)
+    code = models.CharField('код', max_length=50, db_index=True)
+    value = models.CharField('значение', max_length=100)
 
     class Meta:
-        verbose_name = 'элемент в версии справочника'
-        verbose_name_plural = 'элементы в версии справочника'
+        verbose_name = 'элемент'
+        verbose_name_plural = 'элементы'
+        ordering = ('code',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['version', 'code'],
+                name='unique_code_in_version'
+            ),
+            models.UniqueConstraint(
+                fields=['version', 'value'],
+                name='unique_value_in_version'
+            )
+        ]
+
+    def __str__(self):
+        return self.code
