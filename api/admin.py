@@ -3,11 +3,15 @@ from typing import Optional
 
 from django.contrib import admin
 
-from api.models import Element, Guide, Version
+from api.models import Element, Guide, Version, ElementInVersion
 
 
 class VersionInline(admin.TabularInline):
     model = Version
+
+
+class ElementInVersionInline(admin.TabularInline):
+    model = ElementInVersion
 
 
 class GuideAdmin(admin.ModelAdmin):
@@ -49,9 +53,9 @@ class VersionAdmin(admin.ModelAdmin):
 
 class ElementAdmin(admin.ModelAdmin):
     list_display = ('code', 'value')
-    filter_horizontal = ('version',)
     list_filter = ('code', )
     empty_value_display = '-пусто-'
+    inlines = [ElementInVersionInline, ]
 
 
 admin.site.register(Element, ElementAdmin)

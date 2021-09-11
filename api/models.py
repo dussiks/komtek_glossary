@@ -1,7 +1,27 @@
 import datetime as dt
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
+
+
+class Element(models.Model):
+    code = models.CharField('код', max_length=50, db_index=True)
+    value = models.CharField('значение', max_length=100)
+
+    class Meta:
+        verbose_name = 'элемент'
+        verbose_name_plural = 'элементы'
+        ordering = ('code',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['code', 'value'],
+                name='unique_code_value'
+            )
+        ]
+
+    def __str__(self):
+        return self.code
 
 
 class Guide(models.Model):
@@ -54,6 +74,11 @@ class Version(models.Model):
         null=False,
         blank=False
     )
+    elements = models.ManyToManyField(
+        Element,
+        through='ElementInVersion',
+        verbose_name='элемент в версии'
+    )
 
     class Meta:
         verbose_name = 'версия'
@@ -70,25 +95,32 @@ class Version(models.Model):
         return f'{self.guide.short_title} версия {self.name}'
 
 
-class Element(models.Model):
-    version = models.ManyToManyField(
+class ElementInVersion(models.Model):
+    version = models.ForeignKey(
         Version,
-        related_name='elements',
-        verbose_name='версии'
+        on_delete=models.CASCADE,
+        related_name='version_elements',
+        verbose_name='версия'
     )
-    code = models.CharField('код', max_length=50, db_index=True)
-    value = models.CharField('значение', max_length=100)
+    element = models.ForeignKey(
+        Element,
+        on_delete=models.CASCADE,
+        verbose_name='элемент'
+    )
+
+    def validate_unique(self, exclude=None):
+        elements = Element.objects.filter(code=self.element.code)
+        if ElementInVersion.objects.filter(
+                version=self.version, element__in=elements
+        ).exists():
+            raise ValidationError(
+                'You already have element with such code in this version'
+            )
+
+    def save(self, *args, **kwargs):
+        self.validate_unique()
+        super().save(self, *args, **kwargs)
 
     class Meta:
-        verbose_name = 'элемент'
-        verbose_name_plural = 'элементы'
-        ordering = ('code',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['code', 'value'],
-                name='unique_code_value'
-            )
-        ]
-
-    def __str__(self):
-        return self.code
+        verbose_name = 'элемент в версии справочника'
+        verbose_name_plural = 'элементы в версии справочника'
