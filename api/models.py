@@ -109,12 +109,21 @@ class ElementInVersion(models.Model):
     )
 
     def validate_unique(self, exclude=None):
-        elements = Element.objects.filter(code=self.element.code)
+        elems_with_code = Element.objects.filter(code=self.element.code)
+
         if ElementInVersion.objects.filter(
-                version=self.version, element__in=elements
-        ).exists():
+                version=self.version, element__in=elems_with_code
+        ).exclude(id=self.id).exists():
             raise ValidationError(
                 'You already have element with such code in this version'
+            )
+
+        elems_with_value = Element.objects.filter(value=self.element.value)
+        if ElementInVersion.objects.filter(
+                version=self.version, element__in=elems_with_value
+        ).exclude(id=self.id).exists():
+            raise ValidationError(
+                'You already have element with such value in this version'
             )
 
     def save(self, *args, **kwargs):
