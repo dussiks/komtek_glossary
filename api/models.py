@@ -4,6 +4,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
 
+from api.managers import VersionManager
+
 
 class Element(models.Model):
     code = models.CharField('код', max_length=50, db_index=True)
@@ -79,6 +81,8 @@ class Version(models.Model):
         through='ElementInVersion',
         verbose_name='элемент в версии'
     )
+    objects = VersionManager()
+
 
     class Meta:
         verbose_name = 'версия'
