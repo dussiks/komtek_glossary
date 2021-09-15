@@ -28,6 +28,7 @@ class Glossary:
 
     def get_guide_object_or_none(self) -> Optional[Guide]:
         """Returns guide object initialized by guide_id in Glossary class"""
+
         try:
             guide_id = int(self._guide_id)
         except (ValueError, TypeError):
@@ -44,6 +45,7 @@ class Glossary:
         """
         Returns guide's version initialized by version_id in Glossary class.
         """
+
         try:
             version_id = int(self._version_id)
         except ValueError:
@@ -58,6 +60,7 @@ class Glossary:
 
     def is_glossary_version_valid_for_guide(self) -> bool:
         """Returns if Glossary class version in guide's versions"""
+
         guide = self.get_guide_object_or_none()
         version = self.get_version_object_by_id_or_none()
 
