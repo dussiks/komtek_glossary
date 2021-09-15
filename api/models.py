@@ -2,9 +2,11 @@ import datetime as dt
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.functional import cached_property
 
 from api.managers import VersionManager
+
+
+CURRENT_DATE = dt.date.today()
 
 
 class Element(models.Model):
@@ -48,14 +50,11 @@ class Guide(models.Model):
     def __str__(self):
         return self.title
 
-    @cached_property
-    def show_actual_version(self):
-        """Returns guide's version actual at date when called."""
-        actual_date = dt.date.today()
-
+    def get_actual_version(self, date=CURRENT_DATE):
+        """Returns guide's version actual for exact date or current date."""
         try:
             actual_version = self.versions.filter(
-                start_date__lte=actual_date
+                start_date__lte=date
             ).order_by(
                 'start_date'
             ).last()
@@ -82,7 +81,6 @@ class Version(models.Model):
         verbose_name='элемент в версии'
     )
     objects = VersionManager()
-
 
     class Meta:
         verbose_name = 'версия'
