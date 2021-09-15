@@ -69,7 +69,7 @@ class Glossary:
 
         return False
 
-    def get_version_for_validation_or_none(self) -> Optional[Version]:
+    def get_version_for_elem_validation_or_none(self) -> Optional[Version]:
         """
         Returns guide's version applicable for validation or none.
         Firstly try by Glossary class argument.
@@ -98,7 +98,7 @@ class Glossary:
     def is_element_valid(self) -> bool:
         """Validates if element in guide's version."""
 
-        version = self.get_version_for_validation_or_none()
+        version = self.get_version_for_elem_validation_or_none()
         if version is None:
             return False
 

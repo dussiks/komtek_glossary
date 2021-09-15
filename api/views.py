@@ -24,7 +24,7 @@ class ListRetrieveViewSet(mixins.ListModelMixin,
                           GenericViewSet):
 
     def _validate_element_in_version(self, glossary: Glossary) -> Response:
-        version = glossary.get_version_for_validation_or_none()
+        version = glossary.get_version_for_elem_validation_or_none()
         if version is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -102,7 +102,7 @@ class GuideViewSet(ListRetrieveViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
         glossary = Glossary(
-            guide_id=kwargs.get('guide_id'),
+            guide_id=kwargs.get('pk'),
             element_data={'code': code, 'value': value}
         )
         response = self._validate_element_in_version(glossary=glossary)
